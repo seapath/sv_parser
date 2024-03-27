@@ -136,3 +136,51 @@ int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength, struct SV_ASDU *asd
         }
         return 0;
 }
+
+/**
+ * \brief Parse raw data from payload part to an SV structure.
+ *
+ * \param payload Raw data from payload
+ * \param sv Structure where we we will write the parsed data
+ *
+ * \return 0 if success, BAD_FORMAT if bad format
+ **/
+int parse_SV_payload(const uint8_t *payload, struct SV_payload *sv)
+{
+        int cursor;
+        uint8_t tag;
+        uint8_t length;
+        int asdu_idx = 0;
+
+        // fixed values at the beginning of the payload
+        sv->APPID = payload[0] << 8 | payload[1];
+        sv->length = payload[2] << 8 | payload[3];
+
+        cursor = 8; // 4 previous bytes are reserved
+        while(cursor < sv->length) {
+                tag = payload[cursor];
+                length = payload[cursor+1];
+                switch(tag) {
+                case 0x60: // savPDU
+                        cursor += 2;
+                        break;
+                case 0x80: // noASDU
+                        sv->noASDU = payload[cursor+2];
+                        cursor += length + 2;
+                        break;
+                case 0xa2: // seqASDU
+                        cursor += 2;
+                        break;
+                case 0x30: // ASDU
+                        parse_SV_ASDU(&payload[cursor+2],
+                                      length,
+                                      &sv->seqASDU[asdu_idx]);
+                        asdu_idx++;
+                        cursor += length + 2;
+                        break;
+                default:
+                        return BAD_FORMAT;
+                }
+        }
+        return 0;
+}
