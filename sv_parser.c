@@ -51,3 +51,88 @@ void free_SV(struct SV_payload *sv)
         free(sv->seqASDU);
         free(sv);
 }
+
+/**
+ * \brief Parse raw data from ASDU payload part to an asdu structure.
+ *
+ * \param rawData Raw data from the ASDU part of the payload
+ * \param rawDataLength Length of the raw data
+ * \param asdu Structure where we we will write the parsed data
+ *
+ * \return 0 if success, BAD_FORMAT otherwise
+ **/
+int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength, struct SV_ASDU *asdu)
+{
+        int cursor = 0;
+        uint8_t tag;
+        uint8_t length;
+        int i;
+
+        while(cursor < rawDataLength) {
+                tag = rawData[cursor];
+                length = rawData[cursor+1];
+                switch(tag) {
+                case 0x80: // svID
+                        for (i = 0; i < length; ++i) {
+                                // start from 3rd byte
+                                asdu->svID[i] = rawData[cursor + i + 2];
+                        }
+                        asdu->svID[i] = '\0'; // EOS char
+                        cursor += length + 2;
+                        break;
+                case 0x81: // datSet
+                        for (i = 0; i < length; ++i) {
+                                // start from 3rd byte
+                                asdu->datSet[i] = rawData[cursor + i + 2];
+                        }
+                        asdu->datSet[i] = '\0'; // EOS char
+                        cursor += length + 2;
+                        break;
+                case 0x82: // smpCnt
+                        asdu->smpCnt = rawData[cursor+2] << 8
+                                     | rawData[cursor+3];
+                        cursor += length + 2;
+                        break;
+                case 0x83: // confRev
+                        asdu->confRev = 0;
+                        for (int i = 0; i < 4; ++i) {
+                                asdu->confRev |= rawData[cursor + 2 + i]
+                                        << (24 - 8 * i);
+                        }
+                        cursor += length + 2;
+                        break;
+                case 0x84: // refrTm
+                        asdu->refrTm = 0;
+                        for (int i = 0; i < 8; ++i) {
+                                asdu->refrTm |= rawData[cursor + 2 + i]
+                                        << (56 - 8 * i);
+                        }
+                        cursor += length + 2;
+                        break;
+                case 0x85: // smpSynch
+                        asdu->smpSynch = rawData[cursor + 2];
+                        cursor += length + 2;
+                        break;
+                case 0x86: // smpRate
+                        asdu->smpRate = rawData[cursor+2] << 8
+                                     | rawData[cursor+3];
+                        cursor += length + 2;
+                        break;
+                case 0x87: // sample
+                        for (i = 0; i < length; ++i) {
+                                // start from 3rd byte
+                                asdu->seqData[i] = rawData[cursor + i + 2];
+                        }
+                        asdu->seqDataLength = length;
+                        cursor += length + 2;
+                        break;
+                case 0x88: // smpMod
+                        asdu->smpMod = rawData[cursor + 2];
+                        cursor += length + 2;
+                        break;
+                default:
+                        return BAD_FORMAT;
+                }
+        }
+        return 0;
+}
