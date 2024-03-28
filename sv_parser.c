@@ -35,3 +35,19 @@ struct SV_payload* create_SV()
         }
         return sv;
 }
+
+/**
+ * \brief SV_payload destructor
+ *
+ * \param sv Structure to free
+ * */
+void free_SV(struct SV_payload *sv)
+{
+        for(int i=0; i<8; ++i) {
+                free(sv->seqASDU[i].svID);
+                free(sv->seqASDU[i].datSet);
+                free(sv->seqASDU[i].seqData);
+        }
+        free(sv->seqASDU);
+        free(sv);
+}
