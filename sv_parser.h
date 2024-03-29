@@ -50,10 +50,6 @@ struct SV_payload {
 struct SV_payload* create_SV();
 void free_SV(struct SV_payload *sv);
 
-// constructor & destructor
-struct SV_payload* create_SV();
-void free_SV(struct SV_payload *sv);
-
 // parsing functions
 int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength,
                   struct SV_ASDU *asdu);
