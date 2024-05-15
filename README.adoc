@@ -3,28 +3,29 @@
 Tool to parse IEC 61850 Sampled Values from the packet payload.
 The SV payload contains the following information:
 
+|=========================
+| Field      | Description
+| `APPID`    | Application ID
+| `length`   | Message length
+| `noASDU`   | Number of ASDU in the sequence
+| `seqASDU`  | Sequence of ASDU
+|=========================
 
-| Champ      | Description                                        |
-|------------|----------------------------------------------------|
-| `APPID`    | Application ID                                     |
-| `length`   | Message length                                     |
-| `noASDU`   | Number of ASDU in the sequence                     |
-| `seqASDU`  | Sequence of ASDU                                   |
+And for each ASDU contains the following information:
 
-And or each ASDU contains the following information:
-
-| Champ          | Description                                                                        |
-|----------------|------------------------------------------------------------------------------------|
-| `svID`         | User-defined unique string identifier used for subscription                        |
-| `datSet`       | The name of the data set being sent                                                |
-| `smpCnt`       | Index of the SV message                                                            |
-| `confRev`      | Configuration revision                                                             |
-| `smpSynch`     | Synchronization mechanism of the clock used for sending the SV                     |
-| `smpMod`       | Sample Mode : samples/period, samples/sec, sec/sample                              |
-| `smpRate`      | Sample rate                                                                        |
-| `refrTm`       | Time of the first sample                                                           |
-| `seqDataLength`| Length of the sequence of data                                                     |
-| `seqData`      | Sequence of measured voltage and current values                                    |
+|=========================
+| Field          | Description
+| `svID`         | User-defined unique string identifier used for subscription
+| `datSet`       | The name of the data set being sent
+| `smpCnt`       | Index of the SV message
+| `confRev`      | Configuration revision
+| `smpSynch`     | Synchronization mechanism of the clock used for sending the SV
+| `smpMod`       | Sample Mode : samples/period, samples/sec, sec/sample
+| `smpRate`      | Sample rate
+| `refrTm`       | Time of the first sample
+| `seqDataLength`| Length of the sequence of data
+| `seqData`      | Sequence of measured voltage and current values
+|=========================
 
 == How to use
 
