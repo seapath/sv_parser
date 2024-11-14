@@ -73,6 +73,7 @@ int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength, struct SV_ASDU *asd
                 length = rawData[cursor+1];
                 switch(tag) {
                 case 0x80: // svID
+                        if (unlikely(length > 34)) return BAD_FORMAT;
                         for (i = 0; i < length; ++i) {
                                 // start from 3rd byte
                                 asdu->svID[i] = rawData[cursor + i + 2];
@@ -81,6 +82,7 @@ int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength, struct SV_ASDU *asd
                         cursor += length + 2;
                         break;
                 case 0x81: // datSet
+                        if (unlikely(length > 130)) return BAD_FORMAT;
                         for (i = 0; i < length; ++i) {
                                 // start from 3rd byte
                                 asdu->datSet[i] = rawData[cursor + i + 2];
@@ -119,6 +121,7 @@ int parse_SV_ASDU(const uint8_t *rawData, int rawDataLength, struct SV_ASDU *asd
                         cursor += length + 2;
                         break;
                 case 0x87: // sample
+                        if (unlikely(length > 64)) return BAD_FORMAT;
                         for (i = 0; i < length; ++i) {
                                 // start from 3rd byte
                                 asdu->seqData[i] = rawData[cursor + i + 2];
@@ -172,6 +175,8 @@ int parse_SV_payload(const uint8_t *payload, struct SV_payload *sv)
                         cursor += 2;
                         break;
                 case 0x30: // ASDU
+                        // 8 ASDU maximum in the standard
+                        if (unlikely(asdu_idx >= 8)) return BAD_FORMAT;
                         parse_SV_ASDU(&payload[cursor+2],
                                       length,
                                       &sv->seqASDU[asdu_idx]);
