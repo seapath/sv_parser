@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #define BAD_FORMAT -1 /**< Error code when using a wrong sv payload */
+#define unlikely(x)     __builtin_expect(!!(x), 0)
 
 /**
  * \struct SV_ASDU
